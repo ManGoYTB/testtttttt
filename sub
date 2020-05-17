@@ -6,7 +6,7 @@ from .utils.dataIO import dataIO
 from .check import checks
 
 
-class Subs:
+class sub(commands.Cog):
 
     """Create automatic reactions when trigger words are typed in chat"""
 
@@ -134,6 +134,6 @@ def check_files():
 def setup(bot):
     check_folders()
     check_files()
-    n = Subs(bot)
+    n = sub(bot)
     bot.add_cog(n)
     bot.add_listener(n.msg_listener, "on_message")
