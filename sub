@@ -1,139 +1,108 @@
-import os
 import discord
-import copy
 from discord.ext import commands
-from .utils.dataIO import dataIO
-from .check import checks
 
 
-class sub(commands.Cog):
-
-    """Create automatic reactions when trigger words are typed in chat"""
-
+class HelpCommand:
     def __init__(self, bot):
         self.bot = bot
-        self.settings_path = "data/Subs/settings.json"
-        self.settings = dataIO.load_json(self.settings_path)
+        self.emojis = {'0': '\U00002753',
+                       '1': '\U00000031\U000020E3',
+                       '2': '\U00000032\U000020E3',
+                       '3': '\U00000033\U000020E3',
+                       '4': '\U00000034\U000020E3',
+                       '5': '\U00000035\U000020E3',
+                       '6': '\U00000036\U000020E3',
+                       '7': '\U00000037\U000020E3',
+                       '8': '\U00000038\U000020E3',
+                       '9': '\U00000039\U000020E3',
+                       'Waste': '\U0001f5d1'}
+        self.pages = []
+        self.em = discord.Embed(title='Commands', description='This bot serves no real purpose. Created by <@193040053348466690> and <@159271060582301698>'
+                                            ' for personal use. These are the available commands as of now:',
+                                color=7280563)
+        self.setup = False
+        self.categories = {'Channel': 'ChannelYouTube',
+						   'Subs': 'CommandsOwner',
+						   'test': 'test',
+                           }
+        self.full_descriptions = {}
 
-    @checks.is_owner()    
-    @commands.command(name="addreact", no_pm=True, pass_context=True)
-    async def addreact(self, ctx, word, emoji):
-        """Add an auto reaction to a word"""
-        server = ctx.message.server
-        message = ctx.message
-        self.load_settings(server.id)
-        emoji = self.fix_custom_emoji(emoji)
-        await self.create_smart_reaction(server, word, emoji, message)
+    def add_line(self, *, number: int, title, description):
+        final_name = '{}  {}'.format(self.emojis[str(number)], title)
+        self.em.add_field(name=final_name, value=description, inline=False)
 
-    @checks.is_owner()		
-    @commands.command(name="delreact", no_pm=True, pass_context=True)
-    async def delreact(self, ctx, word, emoji):
-        """Delete an auto reaction to a word"""
-        server = ctx.message.server
-        message = ctx.message
-        self.load_settings(server.id)
-        emoji = self.fix_custom_emoji(emoji)
-        await self.remove_smart_reaction(server, word, emoji, message)
+    def add_page(self, number, command_name, page_description, *, fields: dict):
+        embed_object = discord.Embed(description=page_description)
+        embed_object.set_author(name='Help for {}'.format(command_name), icon_url='http://i.imgur.com/Sf9ilKc.png')
+        for name in fields.keys():
+            embed_object.add_field(name=name, value=fields[name], inline=False)
+        self.pages.insert(number, embed_object)
+        return embed_object
 
-    def load_settings(self, server_id):
-        self.settings = dataIO.load_json(self.settings_path)
-        if server_id not in self.settings.keys():
-            self.add_default_settings(server_id)
+    async def react(self, message_object):
+        for num, emote in self.emojis.my_set():
+            try:
+                if int(num) < len(self.pages):
+                    await self.bot.add_reaction(message_object, emote)
+            except ValueError:
+                await self.bot.add_reaction(message_object, self.emojis['Waste'])
 
-    def add_default_settings(self, server_id):
-        self.settings[server_id] = {}
-        dataIO.save_json(self.settings_path, self.settings)
+    async def wait_react(self, message_object):
+        list_of_emojis = [value for value in self.emojis.values()]
+        waited_react = await self.bot.wait_for_reaction(emoji=list_of_emojis, message=message_object)
+        return waited_react
 
-    def fix_custom_emoji(self, emoji):
-        if emoji[:2] != "<:":
-            return emoji
-        return [r for server in self.bot.servers for r in server.emojis if r.id == emoji.split(':')[2][:-1]][0]
+    async def edit(self, message_object, number):
+        await self.bot.edit_message(message_object, embed=self.pages[int(number)])
 
-    # From Twentysix26's trigger.py cog
-    def is_command(self, msg):
-        if callable(self.bot.command_prefix):
-            prefixes = self.bot.command_prefix(self.bot, msg)
-        else:
-            prefixes = self.bot.command_prefix
-        for p in prefixes:
-            if msg.content.startswith(p):
-                return True
-        return False
+    async def remove_react(self, emoji, message_object, author):
+        await self.bot.remove_reaction(message=message_object, emoji=emoji, member=author)
 
-    async def create_smart_reaction(self, server, word, emoji, message):
-        try:
-            # Use the reaction to see if it's valid
-            await self.bot.add_reaction(message, emoji)
-            if str(emoji) in self.settings[server.id]:
-                if word.lower() in self.settings[server.id][str(emoji)]:
-                    await self.bot.say("This smart reaction already exists.")
-                    return
-                self.settings[server.id][str(emoji)].append(word.lower())
-            else:
-                self.settings[server.id][str(emoji)] = [word.lower()]
-
-            await self.bot.say("Successfully added this reaction.")
-            dataIO.save_json(self.settings_path, self.settings)
-
-        except discord.errors.HTTPException:
-            await self.bot.say("That's not an emoji I recognize. "
-                               "(might be custom!)")
-
-    async def remove_smart_reaction(self, server, word, emoji, message):
-        try:
-            # Use the reaction to see if it's valid
-            await self.bot.add_reaction(message, emoji)
-            if str(emoji) in self.settings[server.id]:
-                if word.lower() in self.settings[server.id][str(emoji)]:
-                    self.settings[server.id][str(emoji)].remove(word.lower())
-                    await self.bot.say("Removed this smart reaction.")
+    async def configure(self):
+        self.em.set_thumbnail(url=self.bot.user.avatar_url)
+        self.em.set_author(name=self.bot.user.name, icon_url=self.bot.user.avatar_url)
+        self.em.set_footer(text='Bot MaGe Clan',
+                           icon_url='https://cdn.discordapp.com/attachments/327173341532127242/331496661471985675/LfjhaDo.png')
+        for name, command in self.bot.commands.my_set():
+            if not command.hidden:
+                if command.cog_name is not None and command.cog_name in self.categories.keys():
+                    full_category_name = self.categories[command.cog_name]
                 else:
-                    await self.bot.say("That emoji is not used as a reaction "
-                                       "for that word.")
-            else:
-                await self.bot.say("There are no smart reactions which use "
-                                   "this emoji.")
+                    full_category_name = ''
+                try:
+                    self.full_descriptions[full_category_name][f'm.{name}'] = command.help
+                except KeyError:
+                    self.full_descriptions[full_category_name] = {}
+                    self.full_descriptions[full_category_name][f'm.{name}'] = command.help
+        for i, category in enumerate(self.full_descriptions):
+            description = self.full_descriptions[category]
+            self.add_page(number=i+1, command_name=category, page_description='m.help', fields=description)
+            self.add_line(number=i+1, title=category, description='m.help')
+        self.pages.insert(0, self.em)
+        self.setup = True
 
-            dataIO.save_json(self.settings_path, self.settings)
-
-        except discord.errors.HTTPException:
-            await self.bot.say("That's not an emoji I recognize. "
-                               "(might be custom!)")
-
-    # Special thanks to irdumb#1229 on discord for helping me make this method
-    # "more Pythonic"
-    async def msg_listener(self, message):
-        if message.author == self.bot.user:
-            return
-        if self.is_command(message):
-            return
-        server = message.server
-        if server.id not in self.settings.keys():
-            return
-        react_dict = copy.deepcopy(self.settings[server.id])
-        words = message.content.lower().split()
-        for emoji in react_dict:
-            if set(w.lower() for w in react_dict[emoji]).intersection(words):
-                await self.bot.add_reaction(message, self.fix_custom_emoji(emoji))
-
-
-def check_folders():
-    folder = "data/Subs"
-    if not os.path.exists(folder):
-        print("Creating {} folder...".format(folder))
-        os.makedirs(folder)
-
-
-def check_files():
-    default = {}
-    if not dataIO.is_valid_json("data/Subs/settings.json"):
-        print("Creating default Subs settings.json...")
-        dataIO.save_json("data/Subs/settings.json", default)
+    @commands.command(pass_context=True)
+    async def help(self, ctx):
+        if not self.setup:
+            await self.configure()
+        if self.setup:
+            message = await self.bot.say(embed=self.em)
+            await self.react(message)
+            author = ctx.message.author
+            while True:
+                waitreact = await self.wait_react(message)
+                react_user = waitreact.user
+                react_emoji = waitreact.reaction.emoji
+                if react_emoji == '\U0001F5D1' and (react_user == author or react_user.id == '193040053348466690'):
+                    await self.bot.delete_message(message)
+                    break
+                if react_emoji in self.emojis.values() and react_user == author and react_emoji != '\U0001f5d1':
+                    for key, value in self.emojis.my_set():
+                        if value == waitreact.reaction.emoji:
+                            number = key
+                            await self.edit(message, number)
+                            await self.remove_react(waitreact.reaction.emoji, message, author)
 
 
 def setup(bot):
-    check_folders()
-    check_files()
-    n = sub(bot)
-    bot.add_cog(n)
-    bot.add_listener(n.msg_listener, "on_message")
+    bot.add_cog(HelpCommand(bot))
