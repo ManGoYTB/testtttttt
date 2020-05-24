@@ -184,7 +184,7 @@ class GiveawayPlugin(commands.Cog):
         embed.add_field(name="🇩🇪👈👇", value="🔥**https://support.discordapp.com/hc/de**🔥", inline=False)
         embed.add_field(name="🇪🇸👈👇", value="🔥**https://support.discordapp.com/hc/es**🔥", inline=False)
         embed.add_field(name="🇮🇹👈👇", value="🔥**https://support.discordapp.com/hc/it**🔥", inline=False)
-        await self.bot.send_message(discord.Object(ctx.message.channel.id), embed=embed)    
+        await channel.send(discord.Object(ctx.message.channel.id), embed=embed)    
 
     @commands.group(
         name="giveaway",
