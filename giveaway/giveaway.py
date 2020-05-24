@@ -184,7 +184,7 @@ class GiveawayPlugin(commands.Cog):
         await ctx.send_help(ctx.command)
         return
     
-    @giveaway.command(name="discord", aliases=["discord"])
+    @giveaway.command(name="discordd", aliases=["discorddddddd"])
     async def discord(self,ctx):
         """DiscordForum"""
         embed = discord.Embed(
