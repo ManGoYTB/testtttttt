@@ -183,6 +183,22 @@ class GiveawayPlugin(commands.Cog):
         """
         await ctx.send_help(ctx.command)
         return
+    
+    @giveaway.command(name="discord", aliases=["discord"])
+    async def discord(self,ctx):
+        """DiscordForum"""
+        embed = discord.Embed(
+            title="**HelpMe**",
+            color=0x7691eb,
+            description="**getting started**")
+        embed.set_thumbnail(url="http://www.ethicon.com/sites/all/themes/ethicon/img/ajax-loader.gif")    
+        embed.set_author(name="DiscordHelp", icon_url="https://cdn.discordapp.com/embed/avatars/0.png")
+        embed.add_field(name="🇫🇷👈👇", value="🔥**https://support.discordapp.com/hc/fr**🔥", inline=False)
+        embed.add_field(name="🇺🇸👈👇", value="🔥**https://support.discordapp.com/hc/en-us**🔥", inline=False)
+        embed.add_field(name="🇩🇪👈👇", value="🔥**https://support.discordapp.com/hc/de**🔥", inline=False)
+        embed.add_field(name="🇪🇸👈👇", value="🔥**https://support.discordapp.com/hc/es**🔥", inline=False)
+        embed.add_field(name="🇮🇹👈👇", value="🔥**https://support.discordapp.com/hc/it**🔥", inline=False)
+        await self.bot.send_message(discord.Object(ctx.message.channel.id), embed=embed)  
 
     @checks.has_permissions(PermissionLevel.ADMIN)
     @giveaway.command(name="start", aliases=["create", "c", "s"])
@@ -425,22 +441,6 @@ class GiveawayPlugin(commands.Cog):
         embed.description = description
 
         return embed
-    
-    @commands.command(pass_context=True)
-    async def discord(self,ctx):
-        """DiscordForum"""
-        embed = discord.Embed(
-            title="**HelpMe**",
-            color=0x7691eb,
-            description="**getting started**")
-        embed.set_thumbnail(url="http://www.ethicon.com/sites/all/themes/ethicon/img/ajax-loader.gif")    
-        embed.set_author(name="DiscordHelp", icon_url="https://cdn.discordapp.com/embed/avatars/0.png")
-        embed.add_field(name="🇫🇷👈👇", value="🔥**https://support.discordapp.com/hc/fr**🔥", inline=False)
-        embed.add_field(name="🇺🇸👈👇", value="🔥**https://support.discordapp.com/hc/en-us**🔥", inline=False)
-        embed.add_field(name="🇩🇪👈👇", value="🔥**https://support.discordapp.com/hc/de**🔥", inline=False)
-        embed.add_field(name="🇪🇸👈👇", value="🔥**https://support.discordapp.com/hc/es**🔥", inline=False)
-        embed.add_field(name="🇮🇹👈👇", value="🔥**https://support.discordapp.com/hc/it**🔥", inline=False)
-        await self.bot.send_message(discord.Object(ctx.message.channel.id), embed=embed)
 
 
 def setup(bot):
