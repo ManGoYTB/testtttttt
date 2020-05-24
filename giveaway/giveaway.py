@@ -159,7 +159,7 @@ class GiveawayPlugin(commands.Cog):
 
                 embed = message.embeds[0]
                 embed.description = (
-                    f"Ajouté la réaction 🎉 pour entrer dans le giveaway !\n\n"
+                    f"React with 🎉 to enter the giveaway!\n\n"
                     f"Time Remaining: **{time_remaining}**"
                 )
                 await message.edit(embed=embed)
@@ -182,7 +182,7 @@ class GiveawayPlugin(commands.Cog):
         Create / Stop Giveaways
         """
         await ctx.send_help(ctx.command)
-        return 
+        return
 
     @checks.has_permissions(PermissionLevel.ADMIN)
     @giveaway.command(name="start", aliases=["create", "c", "s"])
