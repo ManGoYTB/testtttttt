@@ -37,7 +37,7 @@ class subscommand(commands.Cog):
                     sub_count = json_data['items'][0]['statistics']['subscriberCount']
                     await self.bot.send_message(ctx.message.channel, embed=self.subs_emb(sub_count))
                 else:
-                    await self.bot.say('Error: Status {}, contact the creator'.format(r.status))
+                    await self.bot.send_message('Error: Status {}, contact the creator'.format(r.status))
 
 
 def setup(bot):
