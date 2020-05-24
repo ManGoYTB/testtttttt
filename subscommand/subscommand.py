@@ -12,7 +12,6 @@ from core.models import PermissionLevel
 
 
 class subscommand(commands.Cog):
-class Subss:
     def __init__(self, bot):
         self.bot = bot
         print('Addon "{}" loaded'.format(self.__class__.__name__))
