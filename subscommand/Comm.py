@@ -10,7 +10,7 @@ from discord.ext import commands
 from core import checks
 from core.models import PermissionLevel
 
-class subscommand(commands.Cog):
+class Comm(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         print('Addon "{}" loaded'.format(self.__class__.__name__))  	
@@ -71,4 +71,4 @@ class subscommand(commands.Cog):
 
 
 def setup(bot):
-    bot.add_cog(subscommand(bot))
+    bot.add_cog(Comm(bot))
